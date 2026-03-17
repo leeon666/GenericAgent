@@ -1,3 +1,5 @@
+# GenericAgent - Multi-source API Key Loader
+# Supports: mykey.py, mykey.json, Streamlit Secrets, Environment Variables
 import os, json, re, time, requests, sys, threading, urllib3, base64, mimetypes
 from datetime import datetime
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
