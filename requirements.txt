@@ -9,7 +9,8 @@ lxml>=4.9.0
 
 # Web framework (TMWebDriver.py)
 bottle>=0.12.25
-simple-websocket-server>=1.0.0
+# simple-websocket-server is optional and only available up to 0.4.4
+# simple-websocket-server>=0.4.0
 
 # Optional dependencies (install as needed)
 # lark-oapi>=1.0.0  # Feishu integration
