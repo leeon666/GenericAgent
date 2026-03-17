@@ -1,0 +1,18 @@
+# Core dependencies
+streamlit>=1.28.0
+requests>=2.31.0
+urllib3>=2.0.0
+
+# HTML parsing (TMWebDriver.py)
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Web framework (TMWebDriver.py)
+bottle>=0.12.25
+simple-websocket-server>=1.0.0
+
+# Optional dependencies (install as needed)
+# lark-oapi>=1.0.0  # Feishu integration
+# sider-ai-api>=1.0.0  # Sider AI
+# xai-sdk>=1.0.0  # XAI
+# pyperclip>=1.8.0  # Clipboard utilities

@@ -3,12 +3,53 @@ from datetime import datetime
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def _load_mykeys():
+    # 1. Try loading from mykey.py (local development)
     try:
         import mykey; return {k: v for k, v in vars(mykey).items() if not k.startswith('_')}
     except ImportError: pass
+    
+    # 2. Try loading from mykey.json (backup)
     p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mykey.json')
-    if not os.path.exists(p): raise Exception('[ERROR] mykey.py or mykey.json not found, please create one from mykey_template.')
-    with open(p, encoding='utf-8') as f: return json.load(f)
+    if os.path.exists(p):
+        with open(p, encoding='utf-8') as f: return json.load(f)
+    
+    # 3. Try loading from Streamlit Secrets (Streamlit Cloud deployment)
+    try:
+        import streamlit as st
+        if hasattr(st, 'secrets'):
+            secrets_dict = {}
+            # Convert Streamlit Secrets to mykeys format
+            for key in st.secrets:
+                if key.startswith('OAI_CONFIG'):
+                    # Handle oai_config, oai_config2, oai_config_newx, etc.
+                    config_dict = dict(st.secrets[key])
+                    secrets_dict[key.lower()] = config_dict
+                elif key in ['SIDER_COOKIE', 'GOOGLE_API_KEY', 'PROXY']:
+                    secrets_dict[key.lower()] = st.secrets[key]
+            if secrets_dict:
+                return secrets_dict
+    except:
+        pass
+    
+    # 4. Try loading from environment variables (containerized deployment)
+    env_config = {}
+    for key in ['OAI_APIKEY', 'OAI_APIBASE', 'OAI_MODEL', 'GOOGLE_API_KEY', 'SIDER_COOKIE', 'PROXY']:
+        val = os.environ.get(key)
+        if val:
+            # Map environment variables to mykeys format
+            env_key = key.lower()
+            if env_key == 'oai_apikey':
+                env_config['oai_config'] = {
+                    'apikey': val,
+                    'apibase': os.environ.get('OAI_APIBASE', 'https://api.openai.com/v1'),
+                    'model': os.environ.get('OAI_MODEL', 'gpt-4')
+                }
+            else:
+                env_config[env_key] = val
+    if env_config:
+        return env_config
+    
+    raise Exception('[ERROR] mykey.py, mykey.json, Streamlit Secrets, or environment variables not found. Please configure API keys.')
 
 mykeys = _load_mykeys()
 proxy = mykeys.get("proxy", 'http://127.0.0.1:2082')
